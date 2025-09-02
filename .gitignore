@@ -1,0 +1,40 @@
+# -----------------------------
+# OS / Editor / IDE files
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+*.swp
+*.swo
+
+# Keep VSCode extensions for team
+!.vscode/extensions.json
+
+# -----------------------------
+# Node dependencies
+# -----------------------------
+node_modules/
+**/node_modules/
+
+# -----------------------------
+# Frontend build outputs
+# -----------------------------
+client/dist/
+client/dist-ssr/
+client/.vite/
+
+# -----------------------------
+# Backend build outputs
+# -----------------------------
+server/dist/
+server/.cache/
+
+# -----------------------------
+# Environment files
+# -----------------------------
+.env
+.env.*
+
+# ---------------------

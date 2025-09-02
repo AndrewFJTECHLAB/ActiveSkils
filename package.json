@@ -1,0 +1,20 @@
+{
+  "name": "activeskils",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "docker-build": "docker build -t activeskills .",
+    "docker-run": "docker run -p 8080:8080 -e NODE_ENV=production activeskills"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndrewFJTECHLAB/ActiveSkils.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndrewFJTECHLAB/ActiveSkils/issues"
+  },
+  "homepage": "https://github.com/AndrewFJTECHLAB/ActiveSkils#readme",
+  "description": ""
+}
