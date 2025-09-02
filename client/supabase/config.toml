@@ -1,0 +1,52 @@
+project_id = "ralnclpscdzzpfwmxjmk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[graphql]
+enabled = true
+port = 54329
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[realtime]
+enabled = true
+ip_version = "ipv6"
+port = 54327
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+[functions.extract-pdf]
+verify_jwt = false
+
+[functions.openai-assistant]
+verify_jwt = false
+
+[functions.extract-individual-data]
+verify_jwt = false
+
+[functions.extract-formations]
+verify_jwt = false
+
+[functions.extract-parcours-professionnel]
+verify_jwt = false
+
+[functions.extract-autres-experiences]
+verify_jwt = false
+
+[functions.extract-realisations]
+verify_jwt = false
