@@ -17,45 +17,45 @@ const App = () => {
 
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            try {
-              const { data: profileData, error } = await supabase
-                .from('profiles')
-                .select('first_name, last_name, resultat_prompt1')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              if (error) {
-                console.error('Error fetching profile:', error);
-              } else {
-                setProfile(profileData);
-              }
-            } catch (error) {
-              console.error('Error fetching profile:', error);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        // Fetch user profile
+        setTimeout(async () => {
+          try {
+            const { data: profileData, error } = await supabase
+              .from("profiles")
+              .select("first_name, last_name, resultat_prompt1")
+              .eq("user_id", session.user.id)
+              .maybeSingle();
+
+            if (error) {
+              console.error("Error fetching profile:", error);
+            } else {
+              setProfile(profileData);
             }
-          }, 0);
-        } else {
-          setProfile(null);
-          window.location.href = "https://app.activskills.com/auth";
-        }
-        setIsLoading(false);
+          } catch (error) {
+            console.error("Error fetching profile:", error);
+          }
+        }, 0);
+      } else {
+        setProfile(null);
+        window.location.href = import.meta.env.VITE_AUTH_URL;
       }
-    );
+      setIsLoading(false);
+    });
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (!session) {
-        window.location.href = "https://app.activskills.com/auth";
+        window.location.href = import.meta.env.VITE_AUTH_URL;
       }
       setIsLoading(false);
     });

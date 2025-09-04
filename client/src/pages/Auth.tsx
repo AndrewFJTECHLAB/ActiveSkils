@@ -52,7 +52,7 @@ const Auth = () => {
           description: "Vous êtes maintenant connecté.",
         });
         // Redirect to app subdomain
-        window.location.href = "https://app.activskills.com/app";
+        window.location.href = import.meta.env.VITE_REDIRECT_URL;
       }
     } catch (error) {
       toast({

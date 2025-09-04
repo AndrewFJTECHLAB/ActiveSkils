@@ -46,29 +46,29 @@ const Portfolio = () => {
 
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-          await fetchDocuments(session.user.id);
-        } else {
-          setProfile(null);
-          window.location.href = "https://app.activskills.com/auth";
-        }
-        setIsLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+        await fetchDocuments(session.user.id);
+      } else {
+        setProfile(null);
+        window.location.href = import.meta.env.VITE_AUTH_URL;
       }
-    );
+      setIsLoading(false);
+    });
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (!session) {
-        window.location.href = "https://app.activskills.com/auth";
+        window.location.href = import.meta.env.VITE_AUTH_URL;
       } else {
         fetchProfile(session.user.id);
         fetchDocuments(session.user.id);

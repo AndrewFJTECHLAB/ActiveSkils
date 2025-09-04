@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node src/index.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
     "build": "tsc",
     "start:dev": "cross-env NODE_ENV=development npm run dev",
     "docker-build": "docker build -t activeskills-backend .",
@@ -23,6 +22,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.0",
     "cross-env": "^10.0.0",
+    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }
