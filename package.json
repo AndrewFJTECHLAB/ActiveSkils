@@ -19,6 +19,7 @@
   "homepage": "https://github.com/AndrewFJTECHLAB/ActiveSkils#readme",
   "description": "",
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "prettier": "^3.6.2"
   }
 }
