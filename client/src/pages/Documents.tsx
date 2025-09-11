@@ -11,7 +11,7 @@ import { Upload, FileText, Eye, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Document } from "../../types/type";
-import { saveDocument } from "../../supabase/uploadDocument";
+import { retrieveDocs, saveDocument } from "../../supabase/documents";
 import { extractDocumentData } from "@/api/GET/routes";
 import { DOCUMENT_TYPES, STATUS_COLORS } from "@/Data/data";
 import { useAuth } from "@/context/AuthContext";
@@ -37,13 +37,7 @@ export default function Documents() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from("documents")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
+      const data = await retrieveDocs(user.id);
       setDocuments(data || []);
     } catch (error) {
       console.error("Error fetching documents:", error);

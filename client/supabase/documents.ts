@@ -23,3 +23,15 @@ export const saveDocument = async ({
     throw error
   }
 };
+
+export const retrieveDocs = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("documents")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return data
+}

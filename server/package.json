@@ -6,14 +6,14 @@
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start:dev": "cross-env NODE_ENV=development npm run dev",
-    "docker-build": "docker build -t activeskills-backend .",
-    "docker-run": "docker run -p 3000:3000 -e NODE_ENV=production activeskills-backend"
+    "start": "cross-env NODE_ENV=production node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.2",
     "@types/cors": "^2.8.19",
     "activeskils": "file:..",
     "cors": "^2.8.5",

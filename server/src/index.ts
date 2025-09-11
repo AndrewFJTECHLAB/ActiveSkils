@@ -4,11 +4,9 @@ import dotenv from "dotenv";
 import cors, { CorsOptions } from "cors";
 import routes from "./routes";
 
-import "dotenv/config";
-
 const envFile =
   process.env.NODE_ENV === "production" ? ".env.prod" : ".env.dev";
-dotenv.config({ path: path.resolve(__dirname, "..", envFile), quiet: true });
+dotenv.config({ path: path.resolve(__dirname, "../", envFile), quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
