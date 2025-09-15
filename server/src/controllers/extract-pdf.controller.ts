@@ -20,7 +20,7 @@ const updateFileStatus = async (
   const filePath = req.body.filePath;
 
   if (!filePath) {
-    res.status(400).send();
+    return res.status(400).send();
   }
 
   try {
@@ -60,7 +60,7 @@ const setOcrApiKey = async (
 ) => {
   const key = process.env.FJSOFTLAB_OCR_API_KEY;
 
-  if (!key) throw new Error("FJSOFTLAB_OCR_API_KEY is missing");
+  if (!key) return res.status(500).send("FJSOFTLAB_OCR_API_KEY is missing");
 
   req.payload.ocrApiKey = key;
 
@@ -142,7 +142,9 @@ const pollForJobCompletion = async (
     );
 
     if (!response.ok) {
-      throw new Error(`OCR status check failed: ${response.status}`);
+      return res
+        .status(500)
+        .send(`OCR status check failed: ${response.status}`);
     }
 
     const result = await response.json();
@@ -151,9 +153,11 @@ const pollForJobCompletion = async (
 
   switch (status) {
     case OCR_JOB_STATUS.FAILED:
-      throw new Error("OCR processing failed with status: failed");
+      return res.status(500).send("OCR processing failed with status: failed");
     case OCR_JOB_STATUS.QUEUED:
-      throw new Error(`OCR processing timeout after ${attempts} attempts`);
+      return res
+        .status(500)
+        .send(`OCR processing timeout after ${attempts} attempts`);
   }
 
   next();
@@ -177,9 +181,11 @@ const getMarkdownResult = async (
   );
 
   if (!result.ok) {
-    throw new Error(
-      `OCR result retrieval error: ${result.status} - ${await result.text()}`
-    );
+    return res
+      .status(500)
+      .send(
+        `OCR result retrieval error: ${result.status} - ${await result.text()}`
+      );
   }
 
   const rawResults = await result.text();
@@ -200,7 +206,7 @@ const getMarkdownResult = async (
 
   if (!md || md == "") {
     req.payload.extractionError = "Erreur lors de l'extraction avec OCR";
-    throw new Error("Empty markdown returned from OCR result");
+    return res.status(500).send("Empty markdown returned from OCR result");
   }
 
   req.payload.markdownContent = md;
@@ -295,7 +301,7 @@ const finalDocumentUpdate = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log("Failed to update document with markdown data");
-    return res.status(500);
+    return res.status(500).send("Failed to update document with markdown data");
   }
 };
 

@@ -1,5 +1,7 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseClient } from "../lib/supabase";
+import { DOCUMENT_STATUS } from "../types/enum";
+import { DocumentRepository } from "../types/type";
 
 export class DocumentsRepository implements DocumentRepository {
   private client: SupabaseClient;
@@ -50,10 +52,36 @@ export class DocumentsRepository implements DocumentRepository {
   public uploadMarkdown = async (path: string, content: any) => {
     const { error } = await this.client.storage
       .from(this.table)
-      .upload(path, content, {contentType : 'text/markdown'});
+      .upload(path, content, { contentType: "text/markdown" });
 
-    if(error){
-      throw new Error(error.message)
+    if (error) {
+      throw new Error(error.message);
     }
+  };
+
+  public getDocuments = async (documentIds: string[]) => {
+    const { data, error } = await this.client
+      .from(this.table)
+      .select("*")
+      .in("id", documentIds)
+      .eq("status", DOCUMENT_STATUS.COMPLETED);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  };
+
+  public getDocumentFromStorage = async (path: string) => {
+    const { data, error } = await this.client.storage
+      .from(this.table)
+      .download(path);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
   };
 }

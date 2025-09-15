@@ -1,12 +1,17 @@
 export enum DOCUMENT_STATUS {
-    PENDING = 'pending',
-    PROCESSING = 'processing',
-    COMPLETED = 'completed',
-    ERROR = "error"
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  ERROR = "error",
 }
 
 export enum OCR_JOB_STATUS {
-    QUEUED = 'queued',
-    COMPLETED = 'completed',
-    FAILED = 'failed'
+  QUEUED = "queued",
+  COMPLETED = "completed",
+  FAILED = "failed",
+}
+
+export enum OpenAiRole {
+  SYSTEM = "system",
+  USER = "user",
 }
