@@ -84,4 +84,19 @@ export class DocumentsRepository implements DocumentRepository {
 
     return data;
   };
+
+  public getDocumentsByUserId = async (userId: string) => {
+    const { data, error } = await this.client
+      .from(this.table)
+      .select("*")
+      .eq("user_id", userId)
+      .eq("status", "completed")
+      .not("markdown_content", "is", null);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  };
 }

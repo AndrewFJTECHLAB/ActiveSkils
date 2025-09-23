@@ -2,6 +2,7 @@ import { Request, Response, NextFunction, RequestHandler } from "express";
 import { initPayload } from "../utils/utils";
 import { DocumentsRepository } from "../Repository/documents.repository";
 import { DOCUMENT_STATUS, OCR_JOB_STATUS } from "../types/enum";
+import { DocumentRepository } from "../types/type";
 
 const initRepository = (req: Request, res: Response, next: NextFunction) => {
   const documentRepo = new DocumentsRepository();

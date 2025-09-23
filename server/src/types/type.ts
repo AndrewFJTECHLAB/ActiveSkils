@@ -1,4 +1,4 @@
-import { OpenAiRole } from "./enum";
+import { OpenAiRole, Prompts } from "./enum";
 
 export interface DocumentRepository {
   updateDocument: (
@@ -10,6 +10,15 @@ export interface DocumentRepository {
   uploadMarkdown: (path: string, content: any) => Promise<void>;
   getDocuments: (documentsIds: string[]) => Promise<unknown>;
   getDocumentFromStorage: (path: string) => Promise<unknown>;
+  getDocumentsByUserId: (userId: string) => Promise<unknown>;
+}
+
+export interface ProfileRepository {
+  updateProfile: (userId: string, data: any) => Promise<void>;
+}
+
+export interface PromptRepository {
+  getPromptByName: (promptName: Prompts) => Promise<unknown>;
 }
 
 export interface OpenAiMessages {

@@ -15,3 +15,8 @@ export enum OpenAiRole {
   SYSTEM = "system",
   USER = "user",
 }
+
+export enum Prompts {
+  REALISATIONS = "extract-realisations",
+  AUTRES_EXPERIENCE = "extract-autres-experiences",
+}

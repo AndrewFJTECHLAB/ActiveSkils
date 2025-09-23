@@ -12,7 +12,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User, Session } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
-import { extractIndividualData } from "@/api/POST/routes";
+import {
+  extractFormations,
+  extractIndividualData,
+  extractParcoursPro,
+  openAiAssistant,
+  extractAutresExperience as extractAddExp,
+  extractRealisations as extractReal,
+} from "@/api/POST/routes";
 import { updateProfile } from "../../supabase/profiles";
 
 interface Document {
@@ -169,18 +176,11 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const { data, error } = await supabase.functions.invoke(
-        "openai-assistant",
-        {
-          body: {
-            documentIds: documentIds,
-            prompt:
-              "Analyse ces documents et fournis un résumé détaillé des compétences et expériences professionnelles.",
-          },
-        }
+      const data: any = await openAiAssistant(
+        documentIds,
+        user.id,
+        "Analyse ces documents et fournis un résumé détaillé des compétences et expériences professionnelles."
       );
-
-      if (error) throw error;
 
       if (data.success) {
         toast({
@@ -224,18 +224,22 @@ const Portfolio = () => {
 
       const data: any = await extractIndividualData(documentIds);
 
-      toast({
-        title: "Succès",
-        description: `Extraction terminée avec succès pour ${data.documentsCount} document(s)`,
-      });
+      if (data.success) {
+        toast({
+          title: "Succès",
+          description: `Extraction terminée avec succès pour ${data.documentsCount} document(s)`,
+        });
 
-      // Store the extracted data in the profile
-      if (user) {
-        const updateData = { extracted_individual_data: data.extractedData };
+        // Store the extracted data in the profile
+        if (user) {
+          const updateData = { extracted_individual_data: data.extractedData };
 
-        await updateProfile(updateData, user.id);
+          await updateProfile(updateData, user.id);
 
-        await fetchProfile(user.id);
+          await fetchProfile(user.id);
+        }
+      } else {
+        throw new Error(data.error || "Erreur inconnue");
       }
     } catch (error) {
       console.error("Error extracting individual data:", error);
@@ -266,14 +270,7 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const { data, error } = await supabase.functions.invoke(
-        "extract-formations",
-        {
-          body: { documentIds: documentIds },
-        }
-      );
-
-      if (error) throw error;
+      const data: any = await extractFormations(documentIds);
 
       if (data.success) {
         toast({
@@ -286,7 +283,7 @@ const Portfolio = () => {
           const { error: updateError } = await supabase
             .from("profiles")
             .update({
-              extracted_formations_data: data.extractedFormations,
+              extracted_formations_data: data.extractedData,
             } as any)
             .eq("user_id", user.id);
 
@@ -328,14 +325,7 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const { data, error } = await supabase.functions.invoke(
-        "extract-parcours-professionnel",
-        {
-          body: { documentIds: documentIds },
-        }
-      );
-
-      if (error) throw error;
+      const data: any = await extractParcoursPro(documentIds);
 
       if (data.success) {
         toast({
@@ -347,7 +337,7 @@ const Portfolio = () => {
         if (user) {
           const { error: updateError } = await supabase
             .from("profiles")
-            .update({ extracted_parcours_data: data.extractedParcours } as any)
+            .update({ extracted_parcours_data: data.extractedData } as any)
             .eq("user_id", user.id);
 
           if (updateError) {
@@ -386,14 +376,7 @@ const Portfolio = () => {
 
     setIsExtractingAutresExperiences(true);
     try {
-      const { data, error } = await supabase.functions.invoke(
-        "extract-autres-experiences",
-        {
-          body: { userId: user.id },
-        }
-      );
-
-      if (error) throw error;
+      const data: any = await extractAddExp(user.id);
 
       if (data.success) {
         toast({
@@ -430,14 +413,7 @@ const Portfolio = () => {
 
     setIsExtractingRealisations(true);
     try {
-      const { data, error } = await supabase.functions.invoke(
-        "extract-realisations",
-        {
-          body: { userId: user.id },
-        }
-      );
-
-      if (error) throw error;
+      const data: any = await extractReal(user.id);
 
       if (data.success) {
         toast({
