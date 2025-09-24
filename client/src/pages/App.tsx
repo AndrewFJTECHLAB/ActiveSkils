@@ -1,93 +1,28 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { User, Session } from "@supabase/supabase-js";
+import { useAuth } from "@/context/AuthContext";
+import Navbar from "@/components/Navbar/Navbar";
 
 const App = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<{ first_name?: string; last_name?: string; resultat_prompt1?: string } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, session, profile, isLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Set up auth state listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        // Fetch user profile
-        setTimeout(async () => {
-          try {
-            const { data: profileData, error } = await supabase
-              .from("profiles")
-              .select("first_name, last_name, resultat_prompt1")
-              .eq("user_id", session.user.id)
-              .maybeSingle();
-
-            if (error) {
-              console.error("Error fetching profile:", error);
-            } else {
-              setProfile(profileData);
-            }
-          } catch (error) {
-            console.error("Error fetching profile:", error);
-          }
-        }, 0);
-      } else {
-        setProfile(null);
-        window.location.href = import.meta.env.VITE_AUTH_URL;
-      }
-      setIsLoading(false);
-    });
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (!session) {
-        window.location.href = import.meta.env.VITE_AUTH_URL;
-      }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast({
-          title: "Erreur",
-          description: "Impossible de se déconnecter.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Déconnexion réussie",
-          description: "Vous avez été déconnecté.",
-        });
-        // Redirect to main domain
-        window.location.href = "https://activskills.com/";
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite.",
-        variant: "destructive",
-      });
-    }
-  };
 
   if (isLoading) {
     return (
@@ -104,68 +39,13 @@ const App = () => {
     return null; // Will redirect to auth
   }
 
-  const displayName = profile?.first_name && profile?.last_name 
-    ? `${profile.first_name} ${profile.last_name}`
-    : user.email;
+  const displayName =
+    profile?.first_name && profile?.last_name
+      ? `${profile.first_name} ${profile.last_name}`
+      : user.email;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec logo et navigation */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
-              <img 
-                src="/lovable-uploads/7fc3df79-912a-48f7-af7c-c4852fe05723.png" 
-                alt="ActivSkills Logo" 
-                className="h-8 w-8"
-              />
-              <h1 className="text-2xl font-bold text-primary">ActivSkills</h1>
-            </div>
-            <nav className="flex items-center space-x-1">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/app')}
-                className="bg-accent text-accent-foreground"
-              >
-                Dashboard
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/documents')}
-              >
-                Documents
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/app')}
-              >
-                Profil
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => navigate('/portfolio')}
-              >
-                Portfolio
-              </Button>
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-foreground">{displayName}</span>
-            </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              Déconnexion
-            </Button>
-          </div>
-        </div>
-      </header>
-
       {/* Section principale */}
       <section className="px-6 py-20 bg-gradient-to-br from-primary/5 to-primary-accent/5">
         <div className="max-w-4xl mx-auto">
@@ -191,9 +71,9 @@ const App = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
+                <Button
                   className="w-full bg-primary hover:bg-primary/90"
-                  onClick={() => navigate('/documents')}
+                  onClick={() => navigate("/documents")}
                 >
                   Gérer
                 </Button>
@@ -228,9 +108,9 @@ const App = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
+                <Button
                   className="w-full bg-primary hover:bg-primary/90"
-                  onClick={() => navigate('/portfolio')}
+                  onClick={() => navigate("/portfolio")}
                 >
                   Accéder au portfolio
                 </Button>
@@ -239,7 +119,7 @@ const App = () => {
           </div>
 
           {/* DEBUG: Button to display resultat_prompt1 */}
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV === "development" && (
             <div className="mt-8 text-center">
               <Dialog>
                 <DialogTrigger asChild>
@@ -249,9 +129,12 @@ const App = () => {
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Debug: Contenu de resultat_prompt1</DialogTitle>
+                    <DialogTitle>
+                      Debug: Contenu de resultat_prompt1
+                    </DialogTitle>
                     <DialogDescription>
-                      Résultat de l'assistant OpenAI pour l'utilisateur {displayName}
+                      Résultat de l'assistant OpenAI pour l'utilisateur{" "}
+                      {displayName}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="mt-4">
@@ -263,7 +146,8 @@ const App = () => {
                       </div>
                     ) : (
                       <div className="p-4 bg-muted rounded-lg text-center text-muted-foreground">
-                        Aucun résultat d'assistant disponible pour cet utilisateur.
+                        Aucun résultat d'assistant disponible pour cet
+                        utilisateur.
                       </div>
                     )}
                   </div>

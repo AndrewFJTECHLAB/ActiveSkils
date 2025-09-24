@@ -237,62 +237,6 @@ export default function Documents() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec logo et navigation */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/lovable-uploads/7fc3df79-912a-48f7-af7c-c4852fe05723.png"
-                alt="ActivSkills Logo"
-                className="h-8 w-8"
-              />
-              <h1 className="text-2xl font-bold text-primary">ActivSkills</h1>
-            </div>
-            <nav className="flex items-center space-x-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/app")}
-              >
-                Dashboard
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/documents")}
-                className="bg-accent text-accent-foreground"
-              >
-                Documents
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/app")}
-              >
-                Profil
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/app")}
-              >
-                Portfolio
-              </Button>
-            </nav>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span className="text-sm text-foreground">{displayName}</span>
-            </div>
-            <Button variant="outline" onClick={handleSignOut}>
-              Déconnexion
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Gestion des Documents</h1>
