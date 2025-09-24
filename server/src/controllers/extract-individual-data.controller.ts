@@ -1,15 +1,17 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { initPayload } from "../utils/utils";
 import { DocumentsRepository } from "../Repository/documents.repository";
-import { individualDataPrompt } from "../Prompts/extraction/individualData";
-import { OpenAiMessages } from "../types/type";
+import { OpenAiMessages, PromptRepository } from "../types/type";
 import { callOpenAi } from "../lib/openAi";
-import { OpenAiRole } from "../types/enum";
+import { OpenAiRole, Prompts } from "../types/enum";
+import { PromptsRepository } from "../Repository/prompts.repository";
 
 const initDocRepository = (req: Request, res: Response, next: NextFunction) => {
   const documentRepo = new DocumentsRepository();
+  const promptRepo = new PromptsRepository();
 
   req.payload.documentRepo = documentRepo;
+  req.payload.promptRepo = promptRepo;
 
   next();
 };
@@ -94,12 +96,25 @@ const combineMarkdown = async (
   next();
 };
 
-const preparePrompt = (req: Request, res: Response, next: NextFunction) => {
-  const { combinedContent } = req.payload;
+const preparePrompt = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const {
+    combinedContent,
+    promptRepo,
+  }: { combinedContent: string; promptRepo: PromptRepository } = req.payload;
 
-  const prompt = individualDataPrompt(combinedContent);
+  const promptData: any = await promptRepo.getPromptByName(
+    Prompts.INDIVIDUAL_DATA
+  );
 
-  req.payload.prompt = prompt;
+  const prompt = promptData.prompt_text.replace("{documents}", combinedContent);
+
+  req.payload.userPrompt = prompt;
+  req.payload.systemPrompt = promptData.system_message;
+
   next();
 };
 
@@ -108,17 +123,16 @@ const processWithOpenAi = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { prompt } = req.payload;
+  const { systemPrompt, userPrompt } = req.payload;
 
   const messages: OpenAiMessages[] = [
     {
       role: OpenAiRole.SYSTEM,
-      content:
-        "Tu es un assistant spécialisé dans l'extraction de données personnelles à partir de documents. Tu dois retourner uniquement du JSON valide.",
+      content: systemPrompt,
     },
     {
       role: OpenAiRole.USER,
-      content: prompt,
+      content: userPrompt,
     },
   ];
 

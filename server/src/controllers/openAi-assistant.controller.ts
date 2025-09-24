@@ -1,17 +1,24 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { initPayload } from "../utils/utils";
 import { DocumentsRepository } from "../Repository/documents.repository";
-import { OpenAiMessages, ProfileRepository } from "../types/type";
-import { OpenAiRole } from "../types/enum";
+import {
+  OpenAiMessages,
+  ProfileRepository,
+  PromptRepository,
+} from "../types/type";
+import { OpenAiRole, Prompts } from "../types/enum";
 import { callOpenAi } from "../lib/openAi";
 import { ProfilesRepository } from "../Repository/profiles.repository";
+import { PromptsRepository } from "../Repository/prompts.repository";
 
 const initRepositories = (req: Request, res: Response, next: NextFunction) => {
   const documentRepo = new DocumentsRepository();
   const profileRepo = new ProfilesRepository();
+  const promptRepo = new PromptsRepository();
 
   req.payload.documentRepo = documentRepo;
   req.payload.profileRepo = profileRepo;
+  req.payload.promptRepo = promptRepo;
 
   next();
 };
@@ -123,22 +130,45 @@ const combineMarkdown = async (
   next();
 };
 
+const preparePrompt = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const {
+    promptRepo,
+    prompt,
+    combinedContent,
+  }: { combinedContent: string; promptRepo: PromptRepository; prompt: string } =
+    req.payload;
+
+  const promptData: any = await promptRepo.getPromptByName(
+    Prompts.OPENAI_ASSISTANT
+  );
+
+  const userPrompt = `${prompt}\n\n${promptData.prompt_text.replace("{documents}", combinedContent)}`;
+
+  req.payload.userPrompt = userPrompt;
+  req.payload.systemPrompt = promptData.system_message;
+
+  next();
+};
+
 const processWithOpenAi = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { prompt, combinedContent } = req.payload;
+  const { systemPrompt, userPrompt } = req.payload;
 
   const messages: OpenAiMessages[] = [
     {
       role: OpenAiRole.SYSTEM,
-      content:
-        "Tu es un assistant IA spécialisé dans l'analyse de documents professionnels. Analyse les documents fournis et fournis des insights pertinents et structurés.",
+      content: systemPrompt,
     },
     {
       role: OpenAiRole.USER,
-      content: `${prompt}\n\nVoici les documents à analyser :\n${combinedContent}`,
+      content: userPrompt,
     },
   ];
 
@@ -187,6 +217,7 @@ export const openAiAssistant = (): RequestHandler[] => [
   validateRequest,
   fetchDocuments,
   combineMarkdown,
+  preparePrompt,
   processWithOpenAi,
   updateProfile,
   sendResult,

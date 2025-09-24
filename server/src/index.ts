@@ -13,9 +13,13 @@ if (process.env.NODE_ENV !== "production") {
 
 const app = express();
 const PORT = process.env.WEBSITES_PORT || process.env.PORT || 3000;
+const FRONTEND_ULR = process.env.FRONTEND_ULR;
 
 // ---- cors config ----
 const whitelist = ["http://localhost:8080", "http://localhost:3000"];
+if (FRONTEND_ULR) {
+  whitelist.push(FRONTEND_ULR);
+}
 
 const corsConfig: CorsOptions = {
   origin: (origin, callback) => {

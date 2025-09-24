@@ -20,3 +20,6 @@ Instructions :
 
 Documents à analyser :
 ${documentContent}`;
+
+const sysMsg =
+  "Tu es un assistant spécialisé dans l'extraction de données personnelles à partir de documents. Tu dois retourner uniquement du JSON valide.";

@@ -26,3 +26,6 @@ Instructions :
 
 Documents à analyser :
 ${documentContent}`;
+
+const sysMsg =
+  "Tu es un expert en analyse de CV et documents professionnels. Tu extrais uniquement les informations de formation demandées au format JSON strict.";

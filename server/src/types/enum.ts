@@ -19,4 +19,9 @@ export enum OpenAiRole {
 export enum Prompts {
   REALISATIONS = "extract-realisations",
   AUTRES_EXPERIENCE = "extract-autres-experiences",
+  PARCOURS_PRO = "extract-parcours-professionnel",
+  FORMATIONS = "extract-formations",
+  INDIVIDUAL_DATA = "extract-individual-data",
+  Realisation = "extract-realisations",
+  OPENAI_ASSISTANT = "openai-assistant",
 }
