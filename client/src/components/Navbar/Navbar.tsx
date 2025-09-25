@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { profile, user } = useAuth();
+  const { profile, user, session } = useAuth();
 
   const displayName = React.useMemo(() => {
     if (profile?.first_name && profile?.last_name) {
@@ -22,6 +22,8 @@ const Navbar = () => {
     }
     return user?.email || "Utilisateur";
   }, [profile?.first_name, profile?.last_name, user?.email]);
+
+  const currentPath = window.location.pathname;
 
   const handleSignOut = async () => {
     try {
@@ -37,7 +39,7 @@ const Navbar = () => {
           title: "Déconnexion réussie",
           description: "Vous avez été déconnecté.",
         });
-        window.location.href = "https://activskills.com/";
+        window.location.href = import.meta.env.VITE_HOME_URL;
       }
     } catch (error) {
       toast({
@@ -49,13 +51,11 @@ const Navbar = () => {
   };
 
   const navLinks = React.useMemo(() => {
-    const currentPath = window.location.pathname;
-
     return [
       {
         displayName: "Dashboard",
         link: "/app",
-        isActive: currentPath === "/app" ,
+        isActive: currentPath === "/app",
       },
       {
         displayName: "Documents",
@@ -73,7 +73,7 @@ const Navbar = () => {
         isActive: currentPath.startsWith("/portfolio"),
       },
     ];
-  }, [window.location.pathname]);
+  }, [currentPath]);
 
   return (
     <header className="border-b border-border px-6 py-4">
@@ -87,29 +87,50 @@ const Navbar = () => {
             />
             <h1 className="text-2xl font-bold text-primary">ActivSkills</h1>
           </div>
-          <nav className="flex items-center space-x-1">
-            {navLinks.map((navLink) => (
-              <Button
-                key={navLink.displayName}
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(navLink.link)}
-                className={`${navLink.isActive ? "bg-accent text-accent-foreground" : ""}`}
-              >
-                {navLink.displayName}
-              </Button>
-            ))}
-          </nav>
+          {session && (
+            <nav className="flex items-center space-x-1">
+              {navLinks.map((navLink) => (
+                <Button
+                  key={navLink.displayName}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(navLink.link)}
+                  className={`${navLink.isActive ? "bg-accent text-accent-foreground" : ""}`}
+                >
+                  {navLink.displayName}
+                </Button>
+              ))}
+            </nav>
+          )}
         </div>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-foreground">{displayName}</span>
+        {session ? (
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-foreground">{displayName}</span>
+            </div>
+            <Button variant="outline" onClick={handleSignOut}>
+              Déconnexion
+            </Button>
           </div>
-          <Button variant="outline" onClick={handleSignOut}>
-            Déconnexion
+        ) : currentPath == "/auth" ? (
+          <Button
+            variant="outline"
+            onClick={() =>
+              (window.location.href = import.meta.env.VITE_HOME_URL)
+            }
+          >
+            Retour à l'accueil
           </Button>
-        </div>
+        ) : (
+          <Button
+            onClick={() =>
+              (window.location.href = import.meta.env.VITE_AUTH_URL)
+            }
+          >
+            Connexion
+          </Button>
+        )}
       </div>
     </header>
   );

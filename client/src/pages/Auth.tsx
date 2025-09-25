@@ -136,31 +136,12 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec logo et navigation */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img 
-              src="/lovable-uploads/7fc3df79-912a-48f7-af7c-c4852fe05723.png" 
-              alt="ActivSkills Logo" 
-              className="h-8 w-8"
-            />
-            <h1 className="text-2xl font-bold text-primary">ActivSkills</h1>
-          </div>
-          <Button variant="outline" onClick={() => window.location.href = "https://activskills.com/"}>
-            Retour à l'accueil
-          </Button>
-        </div>
-      </header>
-
       {/* Section de connexion */}
       <section className="px-6 py-20 bg-gradient-to-br from-primary/5 to-primary-accent/5">
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">
-                Connexion
-              </CardTitle>
+              <CardTitle className="text-2xl">Connexion</CardTitle>
               <CardDescription>
                 Connectez-vous à votre compte ActivSkills
               </CardDescription>
@@ -189,8 +170,8 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-primary hover:bg-primary/90"
                   disabled={isLoading}
                 >

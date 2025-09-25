@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -20,21 +20,15 @@ import {
 } from "@/api/POST/routes";
 import { updateProfile } from "../../supabase/profiles";
 import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/Navbar/Navbar";
-import { Document } from "types/type";
+import { Document } from "../../types/type";
+import { DOCUMENT_PROCESS } from "../../types/enum";
 
 const Portfolio = () => {
   const { user, profile, isLoading, refreshProfile } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [fetchingDocuments, setFetchingDocuments] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isExtractingData, setIsExtractingData] = useState(false);
-  const [isExtractingFormations, setIsExtractingFormations] = useState(false);
-  const [isExtractingParcours, setIsExtractingParcours] = useState(false);
-  const [isExtractingAutresExperiences, setIsExtractingAutresExperiences] =
-    useState(false);
-  const [isExtractingRealisations, setIsExtractingRealisations] =
-    useState(false);
+  const [executing, setExecuting] = useState(null);
+
   const { toast } = useToast();
 
   const fetchDocuments = async () => {
@@ -61,53 +55,7 @@ const Portfolio = () => {
     }
   };
 
-  const launchAnalysis = async () => {
-    if (documents.length === 0) {
-      toast({
-        title: "Erreur",
-        description: "Aucun document complété disponible pour l'analyse",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsAnalyzing(true);
-    try {
-      const documentIds = documents.map((doc) => doc.id);
-
-      const data: any = await openAiAssistant(
-        documentIds,
-        user.id,
-        "Analyse ces documents et fournis un résumé détaillé des compétences et expériences professionnelles."
-      );
-
-      if (data.success) {
-        toast({
-          title: "Succès",
-          description: `Analyse terminée avec succès pour ${data.documentsCount} document(s)`,
-        });
-
-        // Refresh profile to get updated resultat_prompt1
-        if (user) {
-          await refreshProfile();
-        }
-      } else {
-        throw new Error(data.error || "Erreur inconnue");
-      }
-    } catch (error) {
-      console.error("Error analyzing documents:", error);
-      toast({
-        title: "Erreur",
-        description:
-          error instanceof Error ? error.message : "Erreur lors de l'analyse",
-        variant: "destructive",
-      });
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const extractIndividualDataFromDocs = async () => {
+  const extractIndividualDataFromDocs = async (key) => {
     if (documents.length === 0) {
       toast({
         title: "Erreur",
@@ -117,7 +65,7 @@ const Portfolio = () => {
       return;
     }
 
-    setIsExtractingData(true);
+    setExecuting(key);
     try {
       const documentIds = documents.map((doc) => doc.id);
 
@@ -151,11 +99,11 @@ const Portfolio = () => {
         variant: "destructive",
       });
     } finally {
-      setIsExtractingData(false);
+      setExecuting(null);
     }
   };
 
-  const extractFormationsData = async () => {
+  const extractFormationsData = async (key) => {
     if (documents.length === 0) {
       toast({
         title: "Erreur",
@@ -165,7 +113,7 @@ const Portfolio = () => {
       return;
     }
 
-    setIsExtractingFormations(true);
+    setExecuting(key);
     try {
       const documentIds = documents.map((doc) => doc.id);
 
@@ -206,11 +154,11 @@ const Portfolio = () => {
         variant: "destructive",
       });
     } finally {
-      setIsExtractingFormations(false);
+      setExecuting(null);
     }
   };
 
-  const extractParcoursData = async () => {
+  const extractParcoursData = async (key) => {
     if (documents.length === 0) {
       toast({
         title: "Erreur",
@@ -220,7 +168,7 @@ const Portfolio = () => {
       return;
     }
 
-    setIsExtractingParcours(true);
+    setExecuting(key);
     try {
       const documentIds = documents.map((doc) => doc.id);
 
@@ -229,7 +177,7 @@ const Portfolio = () => {
       if (data.success) {
         toast({
           title: "Succès",
-          description: `Parcours professionnel extrait avec succès pour ${data.documentsProcessed} document(s)`,
+          description: `Parcours professionnel extrait avec succès pour ${data.documentsCount} document(s)`,
         });
 
         // Store the extracted parcours data in the profile
@@ -259,11 +207,11 @@ const Portfolio = () => {
         variant: "destructive",
       });
     } finally {
-      setIsExtractingParcours(false);
+      setExecuting(null);
     }
   };
 
-  const extractAutresExperiences = async () => {
+  const extractAutresExperiences = async (key) => {
     if (!user || documents.length === 0) {
       toast({
         title: "Erreur",
@@ -273,7 +221,7 @@ const Portfolio = () => {
       return;
     }
 
-    setIsExtractingAutresExperiences(true);
+    setExecuting(key);
     try {
       const data: any = await extractAddExp(user.id);
 
@@ -296,11 +244,11 @@ const Portfolio = () => {
         variant: "destructive",
       });
     } finally {
-      setIsExtractingAutresExperiences(false);
+      setExecuting(null);
     }
   };
 
-  const extractRealisations = async () => {
+  const extractRealisations = async (key) => {
     if (!user || documents.length === 0) {
       toast({
         title: "Erreur",
@@ -310,7 +258,7 @@ const Portfolio = () => {
       return;
     }
 
-    setIsExtractingRealisations(true);
+    setExecuting(key);
     try {
       const data: any = await extractReal(user.id);
 
@@ -333,9 +281,90 @@ const Portfolio = () => {
         variant: "destructive",
       });
     } finally {
-      setIsExtractingRealisations(false);
+      setExecuting(null);
     }
   };
+
+  const launchAnalysis = async (key) => {
+    if (documents.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Aucun document complété disponible pour l'analyse",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setExecuting(key);
+    try {
+      const documentIds = documents.map((doc) => doc.id);
+
+      const data: any = await openAiAssistant(
+        documentIds,
+        user.id,
+        "Analyse ces documents et fournis un résumé détaillé des compétences et expériences professionnelles."
+      );
+
+      if (data.success) {
+        toast({
+          title: "Succès",
+          description: `Analyse terminée avec succès pour ${data.documentsCount} document(s)`,
+        });
+
+        // Refresh profile to get updated resultat_prompt1
+        if (user) {
+          await refreshProfile();
+        }
+      } else {
+        throw new Error(data.error || "Erreur inconnue");
+      }
+    } catch (error) {
+      console.error("Error analyzing documents:", error);
+      toast({
+        title: "Erreur",
+        description:
+          error instanceof Error ? error.message : "Erreur lors de l'analyse",
+        variant: "destructive",
+      });
+    } finally {
+      setExecuting(null);
+    }
+  };
+
+  const DocumentProcesses = [
+    {
+      key: DOCUMENT_PROCESS.INDIVIDUAL_DATA,
+      label: "Extraire les données individuelles",
+      function: (key) => extractIndividualDataFromDocs(key),
+    },
+    {
+      key: DOCUMENT_PROCESS.FORMATION,
+      label: "Extraire les formations",
+      function: (key) => extractFormationsData(key),
+    },
+    {
+      key: DOCUMENT_PROCESS.PARCOURS_PRO,
+      label: "Extraire le parcours professionnel",
+      function: (key) => extractParcoursData(key),
+    },
+    {
+      key: DOCUMENT_PROCESS.AUTRES_EXP,
+      label: "Extraire les autres expériences",
+      function: (key) => extractAutresExperiences(key),
+    },
+    {
+      key: DOCUMENT_PROCESS.REALISATION,
+      label: "Extraire les réalisations identifiables",
+      function: (key) => extractRealisations(key),
+    },
+    {
+      key: DOCUMENT_PROCESS.LAUNCH_ANALYSIS,
+      label: "Lancer l'analyse",
+      function: (key) => launchAnalysis(key),
+      variant: "default" as const,
+      loadingText: "Analyse en cours...",
+    },
+  ];
 
   useEffect(() => {
     if (user) {
@@ -400,105 +429,25 @@ const Portfolio = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                  <Button
-                    onClick={extractIndividualDataFromDocs}
-                    disabled={isExtractingData || documents.length === 0}
-                    variant="secondary"
-                    className="w-full md:w-auto"
-                  >
-                    {isExtractingData ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      "Extraire les données individuelles"
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={extractFormationsData}
-                    disabled={isExtractingFormations || documents.length === 0}
-                    variant="secondary"
-                    className="w-full md:w-auto"
-                  >
-                    {isExtractingFormations ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      "Extraire les formations"
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={extractParcoursData}
-                    disabled={isExtractingParcours || documents.length === 0}
-                    variant="secondary"
-                    className="w-full md:w-auto"
-                  >
-                    {isExtractingParcours ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      "Extraire le parcours professionnel"
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={extractAutresExperiences}
-                    disabled={
-                      isExtractingAutresExperiences || documents.length === 0
-                    }
-                    variant="secondary"
-                    className="w-full md:w-auto"
-                  >
-                    {isExtractingAutresExperiences ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      "Extraire les autres expériences"
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={extractRealisations}
-                    disabled={
-                      isExtractingRealisations || documents.length === 0
-                    }
-                    variant="secondary"
-                    className="w-full md:w-auto"
-                  >
-                    {isExtractingRealisations ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Extraction en cours...
-                      </>
-                    ) : (
-                      "Extraire les réalisations identifiables"
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={launchAnalysis}
-                    disabled={isAnalyzing || documents.length === 0}
-                    className="w-full md:w-auto"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analyse en cours...
-                      </>
-                    ) : (
-                      "Lancer l'analyse"
-                    )}
-                  </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {DocumentProcesses.map((docProcess) => (
+                    <Button
+                      key={docProcess.key}
+                      onClick={() => docProcess.function(docProcess.key)}
+                      disabled={executing || documents.length === 0}
+                      variant={docProcess.variant ?? "secondary"}
+                      className="w-full md:w-auto"
+                    >
+                      {executing == docProcess.key ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {docProcess.loadingText ?? "Extraction en cours..."}
+                        </>
+                      ) : (
+                        docProcess.label
+                      )}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </CardContent>

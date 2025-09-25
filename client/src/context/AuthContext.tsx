@@ -86,6 +86,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (import.meta.env.PROD) {
+      const hostname = window.location.hostname;
+      const path = window.location.pathname;
+
+      if (!hostname.startsWith("app.") && path !== "/") {
+        window.location.href = import.meta.env.VITE_HOME_URL;
+      }
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{ session, user, profile, isLoading, refreshProfile }}

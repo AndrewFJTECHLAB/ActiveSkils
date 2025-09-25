@@ -4,27 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header avec logo et navigation */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img
-              src="/lovable-uploads/7fc3df79-912a-48f7-af7c-c4852fe05723.png"
-              alt="ActivSkills Logo"
-              className="h-8 w-8"
-            />
-            <h1 className="text-2xl font-bold text-primary">ActivSkills</h1>
-          </div>
-          <Button
-            onClick={() =>
-              (window.location.href = import.meta.env.VITE_AUTH_URL)
-            }
-          >
-            Connexion
-          </Button>
-        </div>
-      </header>
-
       {/* Section Hero */}
       <section className="px-6 py-20 bg-gradient-to-br from-primary/5 to-primary-accent/5">
         <div className="max-w-4xl mx-auto text-center">
@@ -55,7 +34,7 @@ const Index = () => {
             <Button
               size="lg"
               onClick={() =>
-                (window.location.href = "https://app.activskills.com/auth")
+                (window.location.href = import.meta.env.VITE_AUTH_URL)
               }
               className="bg-primary hover:bg-primary/90"
             >
