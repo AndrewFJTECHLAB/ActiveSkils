@@ -77,7 +77,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => loadUser(session));
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (_event === "SIGNED_OUT") {
+        setSession(null);
+        setUser(null);
+        setProfile(InitialProfileState);
+
+        window.location.href = import.meta.env.VITE_HOME_URL;
+      } else {
+        loadUser(session);
+      }
+    });
 
     supabase.auth
       .getSession()

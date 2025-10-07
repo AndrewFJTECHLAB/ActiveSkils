@@ -21,7 +21,13 @@ const validateRequest = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { documentIds } = req.body;
+  const { documentIds, userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).send({
+      error: "userId is required",
+    });
+  }
 
   if (!documentIds || !Array.isArray(documentIds) || documentIds.length === 0) {
     return res.status(400).send({
@@ -112,6 +118,7 @@ const preparePrompt = async (
 
   const prompt = promptData.prompt_text.replace("{documents}", combinedContent);
 
+  req.payload.promptId = promptData.id;
   req.payload.userPrompt = prompt;
   req.payload.systemPrompt = promptData.system_message;
 
@@ -146,6 +153,28 @@ const processWithOpenAi = async (
   next();
 };
 
+const saveResult = async (req: Request, res: Response, next: NextFunction) => {
+  const {
+    promptId,
+    extractedData,
+    userId,
+    promptRepo,
+  }: {
+    userId: string;
+    promptId: string;
+    extractedData: string;
+    promptRepo: PromptRepository;
+  } = req.payload;
+
+  await promptRepo.savePromptResult({
+    userId,
+    promptId,
+    value: extractedData,
+  });
+
+  next();
+};
+
 const sendResult = (req: Request, res: Response) => {
   const { documents, extractedData } = req.payload;
 
@@ -169,5 +198,6 @@ export const extractParcoursPro = (): RequestHandler[] => [
   combineMarkdown,
   preparePrompt,
   processWithOpenAi,
+  saveResult,
   sendResult,
 ];

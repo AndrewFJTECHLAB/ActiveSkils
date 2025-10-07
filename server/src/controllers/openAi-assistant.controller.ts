@@ -148,6 +148,7 @@ const preparePrompt = async (
 
   const userPrompt = `${prompt}\n\n${promptData.prompt_text.replace("{documents}", combinedContent)}`;
 
+  req.payload.promptId = promptData.id;
   req.payload.userPrompt = userPrompt;
   req.payload.systemPrompt = promptData.system_message;
 
@@ -182,21 +183,24 @@ const processWithOpenAi = async (
   next();
 };
 
-const updateProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const saveResult = async (req: Request, res: Response, next: NextFunction) => {
   const {
-    profileRepo,
-    userId,
+    promptId,
     extractedData,
-  }: { profileRepo: ProfileRepository; userId: string; extractedData: any } =
-    req.payload;
+    userId,
+    promptRepo,
+  }: {
+    userId: string;
+    promptId: string;
+    extractedData: string;
+    promptRepo: PromptRepository;
+  } = req.payload;
 
-  const updateData = { resultat_prompt1: extractedData };
-
-  await profileRepo.updateProfile(userId, updateData);
+  await promptRepo.savePromptResult({
+    userId,
+    promptId,
+    value: extractedData,
+  });
 
   next();
 };
@@ -219,6 +223,6 @@ export const openAiAssistant = (): RequestHandler[] => [
   combineMarkdown,
   preparePrompt,
   processWithOpenAi,
-  updateProfile,
+  saveResult,
   sendResult,
 ];

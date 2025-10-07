@@ -6,9 +6,14 @@ import { extractParcoursPro } from "./controllers/extract-parcoursPro.controller
 import { extractRealisations } from "./controllers/extract-realisations.controller";
 import { extractAutresExperience } from "./controllers/extract-autresExperience.controller";
 import { openAiAssistant } from "./controllers/openAi-assistant.controller";
+import { retrievePromptsResult } from "./controllers/retrievePromptsResult.controller";
 
 const router = express.Router();
 
+// ---- GET
+router.get("/prompt-results/:userId", retrievePromptsResult());
+
+// ---- POST
 router.post("/extract/pdf-data", extractPdf());
 router.post("/extract/individual-data", extractIndividualData());
 router.post("/extract/formations", extractFormations());

@@ -18,10 +18,25 @@ export interface ProfileRepository {
 }
 
 export interface PromptRepository {
+  getPromptsResult: (userId: string) => Promise<PromptsResultRes[]>;
   getPromptByName: (promptName: Prompts) => Promise<unknown>;
+  savePromptResult: ({
+    userId,
+    promptId,
+    value,
+  }: {
+    userId: string;
+    promptId: string;
+    value: string;
+  }) => Promise<void>;
 }
 
 export interface OpenAiMessages {
   role: OpenAiRole;
   content: string;
+}
+
+export interface PromptsResultRes {
+  prompt_id: string;
+  result: string;
 }

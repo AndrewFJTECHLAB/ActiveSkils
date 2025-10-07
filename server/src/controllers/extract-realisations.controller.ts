@@ -78,13 +78,23 @@ const combineMarkdown = async (
   next();
 };
 
-const preparePrompt = async(req: Request, res: Response, next: NextFunction) => {
-  const { combinedContent, promptRepo }: { combinedContent: string, promptRepo: PromptRepository } = req.payload;
+const preparePrompt = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const {
+    combinedContent,
+    promptRepo,
+  }: { combinedContent: string; promptRepo: PromptRepository } = req.payload;
 
-  const promptData: any = await promptRepo.getPromptByName(Prompts.REALISATIONS)
+  const promptData: any = await promptRepo.getPromptByName(
+    Prompts.REALISATIONS
+  );
 
   const prompt = promptData.prompt_text.replace("{documents}", combinedContent);
 
+  req.payload.promptId = promptData.id;
   req.payload.userPrompt = prompt;
   req.payload.systemPrompt = promptData.system_message;
   next();
@@ -137,6 +147,28 @@ const updateProfile = async (
   next();
 };
 
+const saveResult = async (req: Request, res: Response, next: NextFunction) => {
+  const {
+    promptId,
+    extractedData,
+    userId,
+    promptRepo,
+  }: {
+    userId: string;
+    promptId: string;
+    extractedData: string;
+    promptRepo: PromptRepository;
+  } = req.payload;
+
+  await promptRepo.savePromptResult({
+    userId,
+    promptId,
+    value: extractedData,
+  });
+
+  next();
+};
+
 const sendResult = (req: Request, res: Response) => {
   const { documents, extractedData } = req.payload;
 
@@ -161,5 +193,6 @@ export const extractRealisations = (): RequestHandler[] => [
   preparePrompt,
   processWithOpenAi,
   updateProfile,
+  saveResult,
   sendResult,
 ];

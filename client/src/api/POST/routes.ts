@@ -7,28 +7,37 @@ export const extractDocumentData = async (filePath: string) => {
   });
 };
 
-export const extractIndividualData = async (documentIds: string[]) => {
+export const extractIndividualData = async (
+  documentIds: string[],
+  userId: string
+) => {
   const response = await post({
     url: `/extract/individual-data`,
-    data: { documentIds },
+    data: { documentIds, userId },
   });
 
   return response;
 };
 
-export const extractFormations = async (documentIds: string[]) => {
+export const extractFormations = async (
+  documentIds: string[],
+  userId: string
+) => {
   const response = await post({
     url: `/extract/formations`,
-    data: { documentIds },
+    data: { documentIds, userId },
   });
 
   return response;
 };
 
-export const extractParcoursPro = async (documentIds: string[]) => {
+export const extractParcoursPro = async (
+  documentIds: string[],
+  userId: string
+) => {
   const response = await post({
     url: "/extract/parcours-pro",
-    data: { documentIds },
+    data: { documentIds, userId },
   });
 
   return response;

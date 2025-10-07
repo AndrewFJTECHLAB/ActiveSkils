@@ -168,7 +168,7 @@ const Index = () => {
           <Button
             size="lg"
             onClick={() =>
-              (window.location.href = "https://app.activskills.com/auth")
+              (window.location.href = import.meta.env.VITE_AUTH_URL)
             }
             className="bg-primary hover:bg-primary/90"
           >

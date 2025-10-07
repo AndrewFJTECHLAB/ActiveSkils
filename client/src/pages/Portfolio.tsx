@@ -22,11 +22,21 @@ import { updateProfile } from "../../supabase/profiles";
 import { useAuth } from "@/context/AuthContext";
 import { Document } from "../../types/type";
 import { DOCUMENT_PROCESS } from "../../types/enum";
+import {
+  Table,
+  TableHeader,
+  TableHead,
+  TableRow,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { fetchPromptsResult } from "@/api/GET/routes";
 
 const Portfolio = () => {
   const { user, profile, isLoading, refreshProfile } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [fetchingDocuments, setFetchingDocuments] = useState(false);
+  const [promptResults, setPromptResults] = useState([]);
   const [executing, setExecuting] = useState(null);
 
   const { toast } = useToast();
@@ -55,6 +65,17 @@ const Portfolio = () => {
     }
   };
 
+  const retrievePromptResults = async () => {
+    const data: any = await fetchPromptsResult(user.id);
+
+    const formattedResult = data.results.map(({ prompt_id, result }) => ({
+      prompt_id,
+      result: JSON.parse(result),
+    }));
+
+    setPromptResults(formattedResult);
+  };
+
   const extractIndividualDataFromDocs = async (key) => {
     if (documents.length === 0) {
       toast({
@@ -69,7 +90,7 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const data: any = await extractIndividualData(documentIds);
+      const data: any = await extractIndividualData(documentIds, user.id);
 
       if (data.success) {
         toast({
@@ -117,7 +138,7 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const data: any = await extractFormations(documentIds);
+      const data: any = await extractFormations(documentIds, user.id);
 
       if (data.success) {
         toast({
@@ -172,7 +193,7 @@ const Portfolio = () => {
     try {
       const documentIds = documents.map((doc) => doc.id);
 
-      const data: any = await extractParcoursPro(documentIds);
+      const data: any = await extractParcoursPro(documentIds, user.id);
 
       if (data.success) {
         toast({
@@ -369,6 +390,7 @@ const Portfolio = () => {
   useEffect(() => {
     if (user) {
       fetchDocuments();
+      retrievePromptResults();
     }
   }, [user]);
 
@@ -465,11 +487,31 @@ const Portfolio = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
+                  {/* <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
                     <pre className="whitespace-pre-wrap text-sm">
                       {profile.extracted_individual_data}
                     </pre>
-                  </div>
+                  </div> */}
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {Object.keys(
+                          JSON.parse(profile.extracted_individual_data)
+                        ).map((val, idx) => (
+                          <TableHead key={idx}>{val}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        {Object.values(
+                          JSON.parse(profile.extracted_individual_data)
+                        ).map((val: any) => (
+                          <TableCell>{val}</TableCell>
+                        ))}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
             )}

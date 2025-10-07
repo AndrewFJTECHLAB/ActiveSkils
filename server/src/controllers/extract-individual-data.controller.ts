@@ -21,7 +21,13 @@ const validateRequest = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { documentIds } = req.body;
+  const { documentIds, userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).send({
+      error: "userId is required",
+    });
+  }
 
   if (!documentIds || !Array.isArray(documentIds) || documentIds.length === 0) {
     return res.status(400).send({
@@ -30,6 +36,7 @@ const validateRequest = async (
   }
 
   req.payload.documentIds = documentIds;
+  req.payload.userId = userId;
   next();
 };
 
@@ -112,6 +119,7 @@ const preparePrompt = async (
 
   const prompt = promptData.prompt_text.replace("{documents}", combinedContent);
 
+  req.payload.promptId = promptData.id;
   req.payload.userPrompt = prompt;
   req.payload.systemPrompt = promptData.system_message;
 
@@ -146,20 +154,42 @@ const processWithOpenAi = async (
   next();
 };
 
+const saveResult = async (req: Request, res: Response, next: NextFunction) => {
+  const {
+    promptId,
+    extractedData,
+    userId,
+    promptRepo,
+  }: {
+    userId: string;
+    promptId: string;
+    extractedData: string;
+    promptRepo: PromptRepository;
+  } = req.payload;
+
+  await promptRepo.savePromptResult({
+    userId,
+    promptId,
+    value: extractedData,
+  });
+
+  next();
+};
+
 const sendResult = (req: Request, res: Response) => {
-    const { documents, extractedData } = req.payload;
-  
-    return res.status(200).json({
-      success: true,
-      extractedData,
-      documentsCount: documents.length,
-      processedDocuments: documents.map((d: any) => ({
-        id: d.id,
-        title: d.title,
-        type: d.document_type,
-      })),
-    });
-  };
+  const { documents, extractedData } = req.payload;
+
+  return res.status(200).json({
+    success: true,
+    extractedData,
+    documentsCount: documents.length,
+    processedDocuments: documents.map((d: any) => ({
+      id: d.id,
+      title: d.title,
+      type: d.document_type,
+    })),
+  });
+};
 
 export const extractIndividualData = (): RequestHandler[] => [
   initPayload,
@@ -169,5 +199,6 @@ export const extractIndividualData = (): RequestHandler[] => [
   combineMarkdown,
   preparePrompt,
   processWithOpenAi,
-  sendResult
+  saveResult,
+  sendResult,
 ];

@@ -98,6 +98,7 @@ const preparePrompt = async (
 
   const prompt = promptData.prompt_text.replace("{documents}", combinedContent);
 
+  req.payload.promptId = promptData.id;
   req.payload.userPrompt = prompt;
   req.payload.systemPrompt = promptData.system_message;
   next();
@@ -131,21 +132,24 @@ const processWithOpenAi = async (
   next();
 };
 
-const updateProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const saveResult = async (req: Request, res: Response, next: NextFunction) => {
   const {
-    profileRepo,
-    userId,
+    promptId,
     extractedData,
-  }: { profileRepo: ProfileRepository; userId: string; extractedData: any } =
-    req.payload;
+    userId,
+    promptRepo,
+  }: {
+    userId: string;
+    promptId: string;
+    extractedData: string;
+    promptRepo: PromptRepository;
+  } = req.payload;
 
-  const updateData = { extracted_autres_experiences_data: extractedData };
-
-  await profileRepo.updateProfile(userId, updateData);
+  await promptRepo.savePromptResult({
+    userId,
+    promptId,
+    value: extractedData,
+  });
 
   next();
 };
@@ -173,6 +177,6 @@ export const extractAutresExperience = (): RequestHandler[] => [
   combineMarkdown,
   preparePrompt,
   processWithOpenAi,
-  updateProfile,
+  saveResult,
   sendResult,
 ];
