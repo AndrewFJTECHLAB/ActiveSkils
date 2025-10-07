@@ -35,6 +35,7 @@ const validateRequest = async (
     });
   }
 
+  req.payload.userId = userId;
   req.payload.documentIds = documentIds;
   next();
 };

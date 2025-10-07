@@ -7,68 +7,14 @@ export const extractDocumentData = async (filePath: string) => {
   });
 };
 
-export const extractIndividualData = async (
-  documentIds: string[],
-  userId: string
-) => {
-  const response = await post({
-    url: `/extract/individual-data`,
-    data: { documentIds, userId },
-  });
-
-  return response;
-};
-
-export const extractFormations = async (
-  documentIds: string[],
-  userId: string
-) => {
-  const response = await post({
-    url: `/extract/formations`,
-    data: { documentIds, userId },
-  });
-
-  return response;
-};
-
-export const extractParcoursPro = async (
-  documentIds: string[],
-  userId: string
-) => {
-  const response = await post({
-    url: "/extract/parcours-pro",
-    data: { documentIds, userId },
-  });
-
-  return response;
-};
-
-export const extractRealisations = async (userId: string) => {
-  const response = await post({
-    url: "/extract/realisation",
-    data: { userId },
-  });
-
-  return response;
-};
-
-export const extractAutresExperience = async (userId: string) => {
-  const response = await post({
-    url: "/extract/autres-experience",
-    data: { userId },
-  });
-
-  return response;
-};
-
-export const openAiAssistant = async (
-  documentIds: string[],
+export const launchExtraction = async (
   userId: string,
-  prompt?: string
+  documentIds: string[],
+  key: string
 ) => {
   const response = await post({
-    url: "/analysis/openAi",
-    data: { documentIds, userId, prompt },
+    url: `/launch-extraction`,
+    data: { documentIds, userId, key },
   });
 
   return response;

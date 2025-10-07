@@ -3,10 +3,10 @@ export interface DOCUMENT_UPLOAD_STATUS {
 }
 
 export enum DOCUMENT_PROCESS {
-  INDIVIDUAL_DATA = "individual-data",
-  FORMATION = "formation",
-  PARCOURS_PRO = "parcours-pro",
-  AUTRES_EXP = "autres-experience",
-  REALISATION = "realisation",
-  LAUNCH_ANALYSIS = "launch-analysis",
+  INDIVIDUAL_DATA = "extract-individual-data",
+  FORMATION = "extract-formations",
+  PARCOURS_PRO = "extract-parcours-professionnel",
+  AUTRES_EXP = "extract-autres-experiences",
+  REALISATION = "extract-realisations",
+  LAUNCH_ANALYSIS = "openai-assistant",
 }

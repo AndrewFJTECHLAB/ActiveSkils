@@ -28,11 +28,7 @@ const validateRequest = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    documentIds,
-    userId,
-    prompt = "Analyse ces documents et fournis un résumé détaillé.",
-  } = req.body;
+  const { documentIds, userId } = req.body;
 
   if (!userId) {
     return res.status(400).send({
@@ -48,7 +44,6 @@ const validateRequest = async (
 
   req.payload.documentIds = documentIds;
   req.payload.userId = userId;
-  req.payload.prompt = prompt;
   next();
 };
 
@@ -137,16 +132,14 @@ const preparePrompt = async (
 ) => {
   const {
     promptRepo,
-    prompt,
     combinedContent,
-  }: { combinedContent: string; promptRepo: PromptRepository; prompt: string } =
-    req.payload;
+  }: { combinedContent: string; promptRepo: PromptRepository } = req.payload;
 
   const promptData: any = await promptRepo.getPromptByName(
     Prompts.OPENAI_ASSISTANT
   );
 
-  const userPrompt = `${prompt}\n\n${promptData.prompt_text.replace("{documents}", combinedContent)}`;
+  const userPrompt = `${promptData.prompt_text.replace("{documents}", combinedContent)}`;
 
   req.payload.promptId = promptData.id;
   req.payload.userPrompt = userPrompt;
