@@ -37,6 +37,10 @@ export interface OpenAiMessages {
 }
 
 export interface PromptsResultRes {
-  prompt_id: string;
-  result: string;
+  result: any;
+  prompts: {
+    id: any;
+    title: any;
+    sub_title: any;
+  }[];
 }

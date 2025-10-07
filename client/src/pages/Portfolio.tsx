@@ -62,9 +62,9 @@ const Portfolio = () => {
   const retrievePromptResults = async () => {
     const data: any = await fetchPromptsResult(user.id);
 
-    const formattedResult = data.results.map(({ prompt_id, result }) => ({
-      prompt_id,
-      result: JSON.parse(result),
+    const formattedResult = data.results.map(({ prompts, result }) => ({
+      ...prompts,
+      result,
     }));
 
     setPromptResults(formattedResult);
@@ -137,8 +137,6 @@ const Portfolio = () => {
   if (!user) {
     return null;
   }
-
-  console.log(promptResults);
 
   return (
     <div className="min-h-screen bg-background">
@@ -213,7 +211,8 @@ const Portfolio = () => {
           {/* Results section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Individual Data Extraction Results */}
-            {profile?.extracted_individual_data && (
+
+            {/* {profile?.extracted_individual_data && (
               <Card>
                 <CardHeader>
                   <CardTitle>Données individuelles extraites</CardTitle>
@@ -244,102 +243,21 @@ const Portfolio = () => {
                   </Table>
                 </CardContent>
               </Card>
-            )}
+            )} */}
 
-            {/* Formations Data Extraction Results */}
-            {profile?.extracted_formations_data && (
-              <Card>
+            {promptResults.map(({ id, result, sub_title, title }) => (
+              <Card key={id}>
                 <CardHeader>
-                  <CardTitle>Formations et diplômes extraits</CardTitle>
-                  <CardDescription>
-                    Tableau des formations extraites des documents
-                  </CardDescription>
+                  <CardTitle>{title}</CardTitle>
+                  <CardDescription>{sub_title}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {profile.extracted_formations_data}
-                    </pre>
+                    <pre className="whitespace-pre-wrap text-sm">{result}</pre>
                   </div>
                 </CardContent>
               </Card>
-            )}
-
-            {/* Parcours Professionnel Extraction Results */}
-            {profile?.extracted_parcours_data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Parcours professionnel extrait</CardTitle>
-                  <CardDescription>
-                    Tableau chronologique des expériences professionnelles
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {profile.extracted_parcours_data}
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Autres Expériences Extraction Results */}
-            {profile?.extracted_autres_experiences_data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Autres expériences extraites</CardTitle>
-                  <CardDescription>
-                    Activités bénévoles, associatives, sportives et de vie
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {profile.extracted_autres_experiences_data}
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Réalisations Extraction Results */}
-            {profile?.extracted_realisations_data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Réalisations identifiables extraites</CardTitle>
-                  <CardDescription>
-                    Toutes les réalisations distinctes avec contexte et méthodes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {profile.extracted_realisations_data}
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Full Analysis Results */}
-            {profile?.resultat_prompt1 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Résultats de l'analyse complète</CardTitle>
-                  <CardDescription>
-                    Résultat brut de l'assistant OpenAI
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-muted rounded-lg p-4 max-h-96 overflow-y-auto">
-                    <pre className="whitespace-pre-wrap text-sm">
-                      {profile.resultat_prompt1}
-                    </pre>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            ))}
           </div>
 
           {!profile?.extracted_individual_data &&
@@ -365,3 +283,6 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+
+//TODO: Have better display for each result (Include key and map component for each )
+//TODO: Add loading for fetching results and actions

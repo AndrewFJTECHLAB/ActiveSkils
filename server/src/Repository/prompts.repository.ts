@@ -57,8 +57,9 @@ export class PromptsRepository implements PromptRepository {
   public getPromptsResult = async (userId: string) => {
     const { data, error } = await this.client
       .from(this.resultTable)
-      .select("result, prompt_id")
-      .eq("user_id", userId);
+      .select("result, prompts:prompt_id (id, title, sub_title)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
       throw new Error(error.message);
