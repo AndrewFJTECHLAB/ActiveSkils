@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -27,14 +27,16 @@ const IndividualData = ({ title, sub_title, result }) => {
           <TableHeader>
             <TableRow>
               {Object.keys(result).map((val, idx) => (
-                <TableHead key={idx} className="capitalize">{val.replace('_', " ")}</TableHead>
+                <TableHead key={idx} className="capitalize">
+                  {val.replace("_", " ")}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
               {Object.values(result).map((val: any, idx) => (
-                <TableCell key={idx}>{val || '-'}</TableCell>
+                <TableCell key={idx}>{val || "-"}</TableCell>
               ))}
             </TableRow>
           </TableBody>
@@ -44,4 +46,4 @@ const IndividualData = ({ title, sub_title, result }) => {
   );
 };
 
-export default memo(IndividualData);
+export default IndividualData;

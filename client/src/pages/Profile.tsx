@@ -26,10 +26,20 @@ const Profile = () => {
   const retrievePromptResults = async () => {
     const data: any = await fetchPromptsResult(user.id);
 
-    const formattedResult = data.results.map(({ prompts, result }) => ({
-      ...prompts,
-      result: JSON.parse(result),
-    }));
+    const formattedResult = data.results.map(({ prompts, result }) => {
+      let parsedResult;
+
+      try {
+        parsedResult = JSON.parse(result);
+      } catch (error) {
+        parsedResult = result;
+      }
+
+      return {
+        ...prompts,
+        result: parsedResult,
+      };
+    });
 
     setPromptResults(formattedResult);
   };
@@ -55,11 +65,13 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       {/* Main content */}
       <main className="px-6 py-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 gap-6 xl:grid-cols-2 max-w-[80%]">
           {promptResults.map(({ key, ...rest }) => {
             const Component = RESULT_COMPONENT_MAPPING[key];
 
-            return Component ? <Component key={key} {...rest} /> : null;
+            if (!Component) return null;
+
+            return <Component key={key} {...rest} />;
           })}
         </div>
       </main>

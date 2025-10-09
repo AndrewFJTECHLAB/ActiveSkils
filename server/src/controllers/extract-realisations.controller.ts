@@ -128,25 +128,6 @@ const processWithOpenAi = async (
   next();
 };
 
-const updateProfile = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const {
-    profileRepo,
-    userId,
-    extractedData,
-  }: { profileRepo: ProfileRepository; userId: string; extractedData: any } =
-    req.payload;
-
-  const updateData = { extracted_realisations_data: extractedData };
-
-  await profileRepo.updateProfile(userId, updateData);
-
-  next();
-};
-
 const saveResult = async (req: Request, res: Response, next: NextFunction) => {
   const {
     promptId,
@@ -192,7 +173,6 @@ export const extractRealisations = (): RequestHandler[] => [
   combineMarkdown,
   preparePrompt,
   processWithOpenAi,
-  updateProfile,
   saveResult,
   sendResult,
 ];
