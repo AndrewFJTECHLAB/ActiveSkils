@@ -14,23 +14,16 @@ import { launchExtraction } from "@/api/POST/routes";
 import { useAuth } from "@/context/AuthContext";
 import { Document } from "../../types/type";
 import { DOCUMENT_PROCESS } from "../../types/enum";
-import {
-  Table,
-  TableHeader,
-  TableHead,
-  TableRow,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
 import { fetchPromptsResult } from "@/api/GET/routes";
 import { fetchPrompts } from "@/../supabase/prompts";
 
 const Portfolio = () => {
   const { user, profile, isLoading } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [fetchingDocuments, setFetchingDocuments] = useState(false);
   const [actions, setActions] = useState([]);
   const [promptResults, setPromptResults] = useState([]);
+  const [fetchingDocuments, setFetchingDocuments] = useState(false);
+  const [fetchingActions, setFetchingActions] = useState(false);
   const [executing, setExecuting] = useState(null);
 
   const { toast } = useToast();
@@ -71,6 +64,7 @@ const Portfolio = () => {
   };
 
   const DocumentProcesses = useCallback(async () => {
+    setFetchingActions(true);
     try {
       const data = await fetchPrompts();
       setActions(data);
@@ -81,6 +75,8 @@ const Portfolio = () => {
         description: "Impossible de charger les actions",
         variant: "destructive",
       });
+    } finally {
+      setFetchingActions(false);
     }
   }, []);
 
@@ -123,7 +119,7 @@ const Portfolio = () => {
     }
   }, [user]);
 
-  if (isLoading || fetchingDocuments) {
+  if (isLoading || fetchingDocuments || fetchingActions) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -210,41 +206,6 @@ const Portfolio = () => {
 
           {/* Results section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Individual Data Extraction Results */}
-
-            {/* {profile?.extracted_individual_data && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Données individuelles extraites</CardTitle>
-                  <CardDescription>
-                    Informations personnelles extraites des documents
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {Object.keys(
-                          JSON.parse(profile.extracted_individual_data)
-                        ).map((val, idx) => (
-                          <TableHead key={idx}>{val}</TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        {Object.values(
-                          JSON.parse(profile.extracted_individual_data)
-                        ).map((val: any, idx) => (
-                          <TableCell key={idx}>{val}</TableCell>
-                        ))}
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            )} */}
-
             {promptResults.map(({ id, result, sub_title, title }) => (
               <Card key={id}>
                 <CardHeader>
@@ -283,6 +244,3 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
-
-//TODO: Have better display for each result (Include key and map component for each )
-//TODO: Add loading for fetching results and actions

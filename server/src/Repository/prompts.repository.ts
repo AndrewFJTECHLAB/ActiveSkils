@@ -57,7 +57,7 @@ export class PromptsRepository implements PromptRepository {
   public getPromptsResult = async (userId: string) => {
     const { data, error } = await this.client
       .from(this.resultTable)
-      .select("result, prompts:prompt_id (id, title, sub_title)")
+      .select("result, prompts:prompt_id (id, key:name, title, sub_title)")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 

@@ -89,9 +89,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     });
 
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => loadUser(session));
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error || !session) {
+        setSession(null);
+        setUser(null);
+        setProfile(InitialProfileState);
+        window.location.href = import.meta.env.VITE_HOME_URL;
+        return;
+      }
+
+      loadUser(session);
+    });
 
     return () => subscription.unsubscribe();
   }, []);
