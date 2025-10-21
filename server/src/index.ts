@@ -16,7 +16,12 @@ const PORT = process.env.WEBSITES_PORT || process.env.PORT || 3000;
 const FRONTEND_ULR = process.env.FRONTEND_ULR;
 
 // ---- cors config ----
-const whitelist = ["http://localhost:8080", "http://localhost:3000"];
+const whitelist = [
+  "http://localhost:8080",
+  "http://localhost:3000",
+  "https://app.activskills.com",
+];
+
 if (FRONTEND_ULR) {
   whitelist.push(FRONTEND_ULR);
 }

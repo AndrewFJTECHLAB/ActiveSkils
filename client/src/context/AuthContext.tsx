@@ -82,8 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(null);
         setUser(null);
         setProfile(InitialProfileState);
-
-        window.location.href = import.meta.env.VITE_HOME_URL;
       } else {
         loadUser(session);
       }
@@ -94,11 +92,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(null);
         setUser(null);
         setProfile(InitialProfileState);
-        window.location.href = import.meta.env.VITE_HOME_URL;
-        return;
+      } else {
+        loadUser(session);
       }
-
-      loadUser(session);
     });
 
     return () => subscription.unsubscribe();
